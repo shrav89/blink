@@ -8,6 +8,8 @@ import { TimerState } from "../shared/types";
 let tray: Tray;
 let lastState: TimerState = "idle";
 
+app.on("window-all-closed", (e: Event) => e.preventDefault());
+
 app.whenReady().then(() => {
   const iconPath = path.join(__dirname, "..", "assets", "icon.png");
   tray = new Tray(iconPath);
