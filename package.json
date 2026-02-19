@@ -4,8 +4,8 @@
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
-    "dev": "tsup electron/main.ts --outDir dist-electron --format cjs --external electron && concurrently \"vite\" \"electron .\"",
-    "dev:electron": "tsup electron/main.ts --outDir dist-electron --format cjs --external electron",
+    "dev": "tsup electron/main.ts electron/preload.ts --outDir dist-electron --format cjs --external electron && concurrently \"vite\" \"electron .\"",
+    "dev:electron": "tsup electron/main.ts electron/preload.ts --outDir dist-electron --format cjs --external electron",
     "build": "vite build",
     "pack": "electron-builder"
   },

@@ -3,7 +3,9 @@ import { app, Tray, Menu, ipcMain } from "electron";
 import { createSettingsWindow } from "./windows/settingsWindow";
 import { createOverlayWindows, closeOverlayWindows, sendToOverlays } from "./windows/overlayWindow";
 import { timerService } from "./services/timerService";
-import { TimerState } from "../shared/types";
+import { getSettings, updateSettings } from "./services/settingsStore";
+import { getStats } from "./services/statsStore";
+import { TimerState, Settings } from "../shared/types";
 
 let tray: Tray;
 let lastState: TimerState = "idle";
@@ -35,6 +37,12 @@ app.whenReady().then(() => {
   });
 
   ipcMain.on("blink:skip", () => timerService.skipBreak());
+
+  ipcMain.handle("blink:settings:get", () => getSettings());
+  ipcMain.handle("blink:settings:save", (_e, partial: Partial<Settings>) =>
+    updateSettings(partial)
+  );
+  ipcMain.handle("blink:stats:get", () => getStats());
 
   timerService.startWork();
 });

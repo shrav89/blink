@@ -1,4 +1,5 @@
 import { getSettings } from "./settingsStore";
+import { addFocusMinutes, recordBreak } from "./statsStore";
 import { TimerState } from "../../shared/types";
 
 type Listener = (state: TimerState, remainingSec: number) => void;
@@ -39,8 +40,14 @@ class TimerService {
 
       if (this.remainingSec <= 0) {
         clearInterval(this.interval!);
-        if (this.state === "work") this.startBreak();
-        else this.startWork();
+        if (this.state === "work") {
+          const { workMinutes } = getSettings();
+          addFocusMinutes(workMinutes);
+          this.startBreak();
+        } else {
+          recordBreak();
+          this.startWork();
+        }
       }
     }, 1000);
   }

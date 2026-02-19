@@ -1,3 +1,4 @@
+import path from "path";
 import { BrowserWindow } from "electron";
 
 let win: BrowserWindow | null = null;
@@ -12,7 +13,9 @@ export function createSettingsWindow() {
     width: 420,
     height: 520,
     webPreferences: {
-      preload: __dirname + "/../preload.js"
+      preload: path.join(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false
     }
   });
 

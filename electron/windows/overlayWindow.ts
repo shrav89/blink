@@ -1,3 +1,4 @@
+import path from "path";
 import { BrowserWindow, screen } from "electron";
 
 let overlays: BrowserWindow[] = [];
@@ -20,7 +21,7 @@ export function createOverlayWindows() {
       resizable: false,
       movable: false,
       webPreferences: {
-        preload: __dirname + "/../preload.js",
+        preload: path.join(__dirname, "preload.cjs"),
         contextIsolation: true,
         nodeIntegration: false
       }
