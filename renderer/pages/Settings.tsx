@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Toggle from "../components/Toggle";
+import type { MeetingAction } from "../../shared/types";
 
 export default function Settings() {
   const [workMinutes, setWorkMinutes] = useState(25);
   const [breakMinutes, setBreakMinutes] = useState(5);
   const [weekdayOnly, setWeekdayOnly] = useState(true);
+  const [detectMeetings, setDetectMeetings] = useState(true);
+  const [meetingAction, setMeetingAction] = useState<MeetingAction>("defer");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -13,11 +16,13 @@ export default function Settings() {
       setWorkMinutes(s.workMinutes);
       setBreakMinutes(s.breakMinutes);
       setWeekdayOnly(s.weekdayOnly);
+      setDetectMeetings(s.detectMeetings);
+      setMeetingAction(s.meetingAction);
     });
   }, []);
 
   const handleSave = async () => {
-    await window.blink?.saveSettings({ workMinutes, breakMinutes, weekdayOnly });
+    await window.blink?.saveSettings({ workMinutes, breakMinutes, weekdayOnly, detectMeetings, meetingAction });
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -54,6 +59,26 @@ export default function Settings() {
           value={weekdayOnly}
           onChange={setWeekdayOnly}
         />
+
+        <Toggle
+          label="Detect meetings"
+          value={detectMeetings}
+          onChange={setDetectMeetings}
+        />
+
+        {detectMeetings && (
+          <label style={labelStyle}>
+            When in a meeting
+            <select
+              value={meetingAction}
+              onChange={e => setMeetingAction(e.target.value as MeetingAction)}
+              style={selectStyle}
+            >
+              <option value="defer">Defer break until meeting ends</option>
+              <option value="skip">Skip break entirely</option>
+            </select>
+          </label>
+        )}
       </div>
 
       <button onClick={handleSave} style={buttonStyle}>
@@ -93,6 +118,16 @@ const inputStyle: React.CSSProperties = {
   background: "#1F2937",
   color: "#E6ECFF",
   width: 120
+};
+
+const selectStyle: React.CSSProperties = {
+  padding: "8px 12px",
+  fontSize: 16,
+  borderRadius: 8,
+  border: "1px solid #4B5563",
+  background: "#1F2937",
+  color: "#E6ECFF",
+  width: 250
 };
 
 const buttonStyle: React.CSSProperties = {
