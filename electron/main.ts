@@ -1,3 +1,4 @@
+import path from "path";
 import { app, Tray, Menu } from "electron";
 import { createSettingsWindow } from "./windows/settingsWindow";
 import { timerService } from "./services/timerService";
@@ -5,7 +6,8 @@ import { timerService } from "./services/timerService";
 let tray: Tray;
 
 app.whenReady().then(() => {
-  tray = new Tray("icon.png");
+  const iconPath = path.join(__dirname, "..", "assets", "icon.png");
+  tray = new Tray(iconPath);
   tray.setToolTip("Blink");
 
   tray.setContextMenu(
