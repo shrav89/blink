@@ -1,7 +1,7 @@
 import path from "path";
 import { app, Tray, Menu, ipcMain } from "electron";
 import { createSettingsWindow } from "./windows/settingsWindow";
-import { createOverlayWindows, closeOverlayWindows, sendToOverlays } from "./windows/overlayWindow";
+import { createOverlayWindows, closeOverlayWindows, sendToOverlays, setFocusEnforcement, forceKillOverlays } from "./windows/overlayWindow";
 import { timerService } from "./services/timerService";
 import { getSettings, updateSettings } from "./services/settingsStore";
 import { getStats } from "./services/statsStore";
@@ -9,6 +9,7 @@ import { TimerState, Settings } from "../shared/types";
 
 let tray: Tray;
 let lastState: TimerState = "idle";
+let watchdogTimer: NodeJS.Timeout | null = null;
 
 app.on("window-all-closed", (e: Event) => e.preventDefault());
 
@@ -26,8 +27,24 @@ app.whenReady().then(() => {
 
   timerService.onTick((state, remainingSec) => {
     if (state !== lastState) {
-      if (state === "break") createOverlayWindows();
-      if (state === "work") closeOverlayWindows();
+      if (state === "break") {
+        createOverlayWindows();
+        setFocusEnforcement(true);
+        const { breakMinutes } = getSettings();
+        if (watchdogTimer) clearTimeout(watchdogTimer);
+        watchdogTimer = setTimeout(() => {
+          forceKillOverlays();
+          timerService.skipBreak();
+        }, (breakMinutes * 60 + 60) * 1000);
+      }
+      if (state === "work") {
+        if (watchdogTimer) {
+          clearTimeout(watchdogTimer);
+          watchdogTimer = null;
+        }
+        setFocusEnforcement(false);
+        closeOverlayWindows();
+      }
       lastState = state;
     }
 
