@@ -1,0 +1,21 @@
+{
+  "name": "blink",
+  "version": "0.1.0",
+  "main": "electron/main.ts",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"electron .\"",
+    "build": "vite build",
+    "pack": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "vite": "^5.0.0",
+    "typescript": "^5.0.0",
+    "concurrently": "^9.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
