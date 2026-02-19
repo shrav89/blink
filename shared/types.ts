@@ -7,6 +7,7 @@ export interface Settings {
   weekdayOnly: boolean;
   detectMeetings: boolean;
   meetingAction: MeetingAction;
+  autoStart: boolean;
 }
 
 export interface DayStats {

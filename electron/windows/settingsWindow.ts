@@ -11,7 +11,7 @@ export function createSettingsWindow() {
 
   win = new BrowserWindow({
     width: 420,
-    height: 600,
+    height: 660,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,

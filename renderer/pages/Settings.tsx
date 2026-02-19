@@ -9,6 +9,7 @@ export default function Settings() {
   const [weekdayOnly, setWeekdayOnly] = useState(true);
   const [detectMeetings, setDetectMeetings] = useState(true);
   const [meetingAction, setMeetingAction] = useState<MeetingAction>("defer");
+  const [autoStart, setAutoStart] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -18,11 +19,12 @@ export default function Settings() {
       setWeekdayOnly(s.weekdayOnly);
       setDetectMeetings(s.detectMeetings);
       setMeetingAction(s.meetingAction);
+      setAutoStart(s.autoStart);
     });
   }, []);
 
   const handleSave = async () => {
-    await window.blink?.saveSettings({ workMinutes, breakMinutes, weekdayOnly, detectMeetings, meetingAction });
+    await window.blink?.saveSettings({ workMinutes, breakMinutes, weekdayOnly, detectMeetings, meetingAction, autoStart });
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -79,6 +81,12 @@ export default function Settings() {
             </select>
           </label>
         )}
+
+        <Toggle
+          label="Start on login"
+          value={autoStart}
+          onChange={setAutoStart}
+        />
       </div>
 
       <button onClick={handleSave} style={buttonStyle}>

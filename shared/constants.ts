@@ -3,5 +3,6 @@ export const DEFAULTS = {
   breakMinutes: 5,
   weekdayOnly: true,
   detectMeetings: true,
-  meetingAction: "defer" as const
+  meetingAction: "defer" as const,
+  autoStart: false
 };

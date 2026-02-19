@@ -1,5 +1,5 @@
 import path from "path";
-import { app, Tray, Menu, ipcMain } from "electron";
+import { app, Tray, Menu, ipcMain, globalShortcut } from "electron";
 import { createSettingsWindow } from "./windows/settingsWindow";
 import { createOverlayWindows, closeOverlayWindows, sendToOverlays, setFocusEnforcement, forceKillOverlays } from "./windows/overlayWindow";
 import { timerService } from "./services/timerService";
@@ -7,6 +7,11 @@ import { getSettings, updateSettings } from "./services/settingsStore";
 import { getStats } from "./services/statsStore";
 import { startPolling, stopPolling, isInMeeting } from "./services/meetingDetector";
 import { TimerState, Settings } from "../shared/types";
+
+function isWeekend(): boolean {
+  const day = new Date().getDay();
+  return day === 0 || day === 6;
+}
 
 let tray: Tray;
 let lastState: TimerState = "idle";
@@ -45,6 +50,12 @@ app.whenReady().then(() => {
         cleanupDeferral();
         const settings = getSettings();
 
+        if (settings.weekdayOnly && isWeekend()) {
+          timerService.skipBreak();
+          lastState = "work";
+          return;
+        }
+
         if (settings.detectMeetings && isInMeeting()) {
           if (settings.meetingAction === "skip") {
             timerService.skipBreak();
@@ -68,6 +79,7 @@ app.whenReady().then(() => {
 
         createOverlayWindows();
         setFocusEnforcement(true);
+        globalShortcut.register('CommandOrControl+Shift+Q', () => timerService.skipBreak());
         const { breakMinutes } = getSettings();
         if (watchdogTimer) clearTimeout(watchdogTimer);
         watchdogTimer = setTimeout(() => {
@@ -80,6 +92,7 @@ app.whenReady().then(() => {
           clearTimeout(watchdogTimer);
           watchdogTimer = null;
         }
+        globalShortcut.unregister('CommandOrControl+Shift+Q');
         setFocusEnforcement(false);
         closeOverlayWindows();
       }
@@ -104,13 +117,20 @@ app.whenReady().then(() => {
         cleanupDeferral();
       }
     }
+    if ("autoStart" in partial) {
+      app.setLoginItemSettings({ openAtLogin: updated.autoStart });
+    }
     return updated;
   });
   ipcMain.handle("blink:stats:get", () => getStats());
 
+  app.setLoginItemSettings({ openAtLogin: getSettings().autoStart });
+
   if (getSettings().detectMeetings) {
     startPolling();
   }
+
+  app.on("will-quit", () => globalShortcut.unregisterAll());
 
   timerService.startWork();
 });
